@@ -47,4 +47,23 @@ public class CatalogLoaderTests
                 $"{i.Id}: {i.Nutrition.Kcal} kcal on the label but {i.Nutrition.KcalFromMacros:F0} kcal from macros");
         });
     }
+
+    [Fact]
+    public void LoadFromDirectory_BundledData_ReadsCategories()
+    {
+        var catalog = CatalogLoader.LoadFromDirectory(RepositoryPaths.DataDirectory);
+
+        Assert.Equal([FoodCategory.Pork, FoodCategory.Beef], catalog.GetIngredient("minced-meat").Categories.Order());
+        Assert.Empty(catalog.GetIngredient("rice").Categories);
+    }
+
+    [Fact]
+    public void LoadFromDirectory_BundledData_UsesEveryCategory()
+    {
+        var catalog = CatalogLoader.LoadFromDirectory(RepositoryPaths.DataDirectory);
+
+        var used = catalog.Ingredients.SelectMany(i => i.Categories).ToHashSet();
+
+        Assert.All(Enum.GetValues<FoodCategory>(), c => Assert.Contains(c, used));
+    }
 }

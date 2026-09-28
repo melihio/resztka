@@ -28,6 +28,34 @@
     "ingredients": { "flour": 80, "milk": 150, "eggs": 1, "apple": 1, "oil": 15, "sugar": 10 }
   },
   {
+    "id": "tea", "name": "Tea", "mealTypes": ["drink"],
+    "ingredients": { "tea": 1 }
+  },
+  {
+    "id": "tea-sugar", "name": "Tea with sugar", "mealTypes": ["drink"],
+    "ingredients": { "tea": 1, "sugar": 10 }
+  },
+  {
+    "id": "coffee", "name": "Black coffee", "mealTypes": ["drink"],
+    "ingredients": { "coffee": 8 }
+  },
+  {
+    "id": "coffee-milk", "name": "Coffee with milk", "mealTypes": ["drink"],
+    "ingredients": { "coffee": 8, "milk": 100 }
+  },
+  {
+    "id": "orange-juice", "name": "Glass of orange juice", "mealTypes": ["drink"],
+    "ingredients": { "orange-juice": 250 }
+  },
+  {
+    "id": "kefir", "name": "Glass of kefir", "mealTypes": ["drink"],
+    "ingredients": { "kefir": 250 }
+  },
+  {
+    "id": "water", "name": "Bottled water (1.5 l)", "mealTypes": ["drink"],
+    "ingredients": { "water": 1500 }
+  },
+  {
     "id": "chicken-pilaf", "name": "Chicken pilaf (tavuklu pilav)", "mealTypes": ["main"],
     "ingredients": { "rice": 100, "chicken-breast": 150, "onion": 50, "butter": 10, "oil": 10 }
   },

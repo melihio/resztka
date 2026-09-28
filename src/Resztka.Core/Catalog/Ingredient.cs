@@ -7,6 +7,8 @@ public sealed record Ingredient(
     Nutrition Nutrition,
     int? ShelfLifeDays = null)
 {
+    public IReadOnlySet<FoodCategory> Categories { get; init; } = new HashSet<FoodCategory>();
+
     public bool IsPerishable => ShelfLifeDays is not null;
 
     public Nutrition NutritionOf(int amount) =>

@@ -28,6 +28,12 @@
     { "id": "bdr-peppers-500",     "name": "Papryka mix 500 g",             "ingredient": "peppers",        "packSize": 500,  "price": 6.99 },
     { "id": "bdr-bread-500",       "name": "Chleb pszenno-żytni 500 g",     "ingredient": "bread",          "packSize": 500,  "price": 3.99 },
     { "id": "bdr-chicken-500",     "name": "Filet z kurczaka 500 g",        "ingredient": "chicken-breast", "packSize": 500,  "price": 14.99 },
-    { "id": "bdr-mince-500",       "name": "Mięso mielone wieprzowo-wołowe 500 g", "ingredient": "minced-meat", "packSize": 500, "price": 11.99 }
+    { "id": "bdr-mince-500",       "name": "Mięso mielone wieprzowo-wołowe 500 g", "ingredient": "minced-meat", "packSize": 500, "price": 11.99 },
+    { "id": "bdr-tea-100",         "name": "Herbata czarna ekspresowa 100 szt.", "ingredient": "tea",       "packSize": 100,  "price": 7.99 },
+    { "id": "bdr-coffee-250",      "name": "Kawa mielona 250 g",            "ingredient": "coffee",         "packSize": 250,  "price": 14.99 },
+    { "id": "bdr-juice-1000",      "name": "Sok pomarańczowy 100% 1 l",     "ingredient": "orange-juice",   "packSize": 1000, "price": 4.99 },
+    { "id": "bdr-water-1500",      "name": "Woda mineralna 1,5 l",          "ingredient": "water",          "packSize": 1500, "price": 1.19 },
+    { "id": "bdr-water-6x1500",    "name": "Woda mineralna 6 × 1,5 l",      "ingredient": "water",          "packSize": 9000, "price": 5.99 },
+    { "id": "bdr-kefir-400",       "name": "Kefir 400 g",                   "ingredient": "kefir",          "packSize": 400,  "price": 2.49 }
   ]
 }
