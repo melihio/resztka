@@ -1,11 +1,11 @@
 [
   {
     "id": "oatmeal-banana", "name": "Oatmeal with banana", "mealTypes": ["breakfast"],
-    "ingredients": { "oats": 60, "milk": 250, "banana": 1, "sugar": 5 }
+    "ingredients": { "oats": 60, "milk": 250, "banana": 1 }
   },
   {
     "id": "oatmeal-apple", "name": "Oatmeal with apple and cinnamon", "mealTypes": ["breakfast"],
-    "ingredients": { "oats": 60, "milk": 250, "apple": 1, "sugar": 5 }
+    "ingredients": { "oats": 60, "milk": 250, "apple": 1 }
   },
   {
     "id": "scrambled-eggs", "name": "Scrambled eggs on bread", "mealTypes": ["breakfast"],
@@ -88,7 +88,7 @@
     "ingredients": { "potatoes": 300, "carrot": 80, "onion": 50, "kielbasa": 50, "oil": 5 }
   },
   {
-    "id": "eggs-potatoes", "name": "Fried eggs with potatoes", "mealTypes": ["main"],
+    "id": "eggs-potatoes", "name": "Fried eggs with potatoes", "mealTypes": ["breakfast", "main"],
     "ingredients": { "potatoes": 350, "eggs": 2, "oil": 15 }
   },
   {
@@ -102,5 +102,33 @@
   {
     "id": "egg-fried-rice", "name": "Egg fried rice with vegetables", "mealTypes": ["main"],
     "ingredients": { "rice": 100, "eggs": 2, "frozen-veg": 150, "oil": 15 }
+  },
+  {
+    "id": "oatmeal-water-apple", "name": "Oatmeal on water with apple", "mealTypes": ["breakfast"],
+    "ingredients": { "oats": 70, "apple": 1 }
+  },
+  {
+    "id": "oatmeal-water-banana", "name": "Oatmeal on water with banana", "mealTypes": ["breakfast"],
+    "ingredients": { "oats": 70, "banana": 1 }
+  },
+  {
+    "id": "vegetable-omelette", "name": "Vegetable omelette", "mealTypes": ["breakfast"],
+    "ingredients": { "eggs": 3, "peppers": 80, "onion": 30, "oil": 10 }
+  },
+  {
+    "id": "potato-pancakes", "name": "Potato pancakes (placki ziemniaczane)", "mealTypes": ["breakfast", "main"],
+    "ingredients": { "potatoes": 300, "flour": 40, "onion": 50, "oil": 30 }
+  },
+  {
+    "id": "lentil-bolognese", "name": "Lentil bolognese", "mealTypes": ["main"],
+    "ingredients": { "pasta": 120, "red-lentils": 60, "tomatoes-can": 200, "onion": 50, "carrot": 50, "oil": 10 }
+  },
+  {
+    "id": "pasta-arrabbiata", "name": "Pasta with tomato and pepper sauce", "mealTypes": ["main"],
+    "ingredients": { "pasta": 120, "tomatoes-can": 200, "peppers": 100, "onion": 50, "oil": 15 }
+  },
+  {
+    "id": "cabbage-potato-stew", "name": "Cabbage and potato stew", "mealTypes": ["main"],
+    "ingredients": { "potatoes": 300, "cabbage": 300, "carrot": 80, "onion": 50, "oil": 15 }
   }
 ]
