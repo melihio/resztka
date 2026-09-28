@@ -18,6 +18,30 @@ public sealed class MealPlanner(FoodCatalog catalog)
     {
         Validate(request);
 
+        var drinks = request.DailyDrinks
+            .Select(d => new DailyDrink(catalog.FindRecipe(d.Key)!, d.Value))
+            .ToList();
+
+        foreach (var drink in drinks)
+        {
+            foreach (var ingredient in drink.Recipe.Ingredients.Keys.Select(catalog.GetIngredient))
+            {
+                if (ingredient.ShelfLifeDays is { } shelfLife && shelfLife < request.Days)
+                {
+                    return MealPlan.Infeasible(
+                        $"{drink.Recipe.Name} is had every day, but {ingredient.Name.ToLowerInvariant()} only keeps " +
+                        $"{shelfLife} days after the shop. Plan at most {shelfLife} days.");
+                }
+            }
+        }
+
+        var drinkNutrition = drinks.Aggregate(
+            default(Nutrition), (sum, d) => sum + catalog.NutritionPerServing(d.Recipe) * d.Servings);
+        var drinkNeed = drinks
+            .SelectMany(d => d.Recipe.Ingredients.Select(i => (Id: i.Key, Amount: i.Value * d.Servings * request.Days * request.People)))
+            .GroupBy(i => i.Id)
+            .ToDictionary(g => g.Key, g => g.Sum(i => i.Amount));
+
         var model = new CpModel();
         var slots = request.MealsPerDay;
 
@@ -65,6 +89,7 @@ public sealed class MealPlanner(FoodCatalog catalog)
             foreach (var day in assignments.GroupBy(a => a.Day))
             {
                 var kcal = LinearExpr.NewBuilder();
+                kcal.Add((long)Math.Round(drinkNutrition.Kcal));
                 foreach (var a in day)
                     kcal.AddTerm(a.Var, (long)Math.Round(catalog.NutritionPerServing(a.Recipe).Kcal));
                 model.Add(kcal >= minKcal);
@@ -79,6 +104,7 @@ public sealed class MealPlanner(FoodCatalog catalog)
                 var c = model.NewIntVar(0, FullCoverage, $"c_d{day.Key}_{nutrient}");
 
                 var intake = LinearExpr.NewBuilder();
+                intake.Add(Scale(drinkNutrition[nutrient]) * FullCoverage);
                 foreach (var a in day)
                     intake.AddTerm(a.Var, Scale(catalog.NutritionPerServing(a.Recipe)[nutrient]) * FullCoverage);
 
@@ -89,12 +115,14 @@ public sealed class MealPlanner(FoodCatalog catalog)
 
         var usedIngredients = assignments
             .SelectMany(a => a.Recipe.Ingredients.Keys)
+            .Concat(drinkNeed.Keys)
             .ToHashSet();
 
         var packs = new Dictionary<Product, IntVar>();
         foreach (var product in catalog.Products.Where(p => usedIngredients.Contains(p.IngredientId)))
         {
-            var maxNeed = MaxPossibleNeed(product.IngredientId, assignments, request);
+            var maxNeed = MaxPossibleNeed(product.IngredientId, assignments, request)
+                + drinkNeed.GetValueOrDefault(product.IngredientId);
             var maxPacks = (maxNeed + product.PackSize - 1) / product.PackSize;
             packs[product] = model.NewIntVar(0, maxPacks, $"n_{product.Id}");
         }
@@ -113,6 +141,7 @@ public sealed class MealPlanner(FoodCatalog catalog)
             var ingredient = catalog.GetIngredient(ingredientId);
 
             var need = LinearExpr.NewBuilder();
+            need.Add(drinkNeed.GetValueOrDefault(ingredientId));
             foreach (var a in assignments.Where(a => a.Recipe.Ingredients.ContainsKey(ingredientId)))
                 need.AddTerm(a.Var, a.Recipe.Ingredients[ingredientId] * request.People);
 
@@ -175,7 +204,10 @@ public sealed class MealPlanner(FoodCatalog catalog)
             provenOptimal ? PlanStatus.Optimal : PlanStatus.Feasible,
             meals,
             shoppingList,
-            ComputeLeftovers(meals, shoppingList, request));
+            ComputeLeftovers(meals, shoppingList, drinkNeed, request))
+        {
+            Drinks = drinks,
+        };
     }
 
     private static CpSolver CreateSolver(TimeSpan timeLimit) => new()
@@ -236,9 +268,12 @@ public sealed class MealPlanner(FoodCatalog catalog)
     private List<Leftover> ComputeLeftovers(
         List<PlannedMeal> meals,
         List<ShoppingItem> shoppingList,
+        Dictionary<string, int> drinkNeed,
         PlanRequest request)
     {
         var supply = new Dictionary<string, int>(request.Pantry);
+        foreach (var (ingredientId, amount) in drinkNeed)
+            supply[ingredientId] = supply.GetValueOrDefault(ingredientId) - amount;
         foreach (var item in shoppingList)
             supply[item.Product.IngredientId] = supply.GetValueOrDefault(item.Product.IngredientId) + item.Product.PackSize * item.Packs;
 
@@ -269,6 +304,32 @@ public sealed class MealPlanner(FoodCatalog catalog)
             throw new ArgumentException("People must be positive.", nameof(request));
         if (request.MaxRepeatsPerRecipe <= 0)
             throw new ArgumentException("MaxRepeatsPerRecipe must be positive.", nameof(request));
+
+        foreach (var (drinkId, servings) in request.DailyDrinks)
+        {
+            var drink = catalog.FindRecipe(drinkId);
+            if (drink is null || !drink.MealTypes.Contains(MealType.Drink))
+            {
+                var known = string.Join(", ", catalog.Recipes.Where(r => r.MealTypes.Contains(MealType.Drink)).Select(r => r.Id));
+                throw new ArgumentException($"Unknown drink '{drinkId}'. Known drinks: {known}.", nameof(request));
+            }
+
+            if (servings <= 0)
+                throw new ArgumentException($"Drink '{drinkId}' needs a positive number of servings.", nameof(request));
+
+            foreach (var ingredient in drink.Ingredients.Keys.Select(catalog.GetIngredient))
+            {
+                if (request.ExcludedIngredients.Contains(ingredient.Id))
+                    throw new ArgumentException($"Drink '{drinkId}' contains {ingredient.Id}, which is excluded.", nameof(request));
+
+                var avoided = ingredient.Categories.Intersect(request.ExcludedCategories).ToList();
+                if (avoided.Count > 0)
+                {
+                    var names = string.Join(", ", avoided.Select(c => c.ToString().ToLowerInvariant()));
+                    throw new ArgumentException($"Drink '{drinkId}' contains {names}, which is avoided.", nameof(request));
+                }
+            }
+        }
 
         foreach (var ingredientId in request.Pantry.Keys.Concat(request.ExcludedIngredients))
         {

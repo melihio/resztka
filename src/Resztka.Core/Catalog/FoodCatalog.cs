@@ -23,6 +23,8 @@ public sealed class FoodCatalog
 
     public Ingredient GetIngredient(string id) => _ingredients[id];
 
+    public Recipe? FindRecipe(string id) => Recipes.FirstOrDefault(r => r.Id == id);
+
     public IEnumerable<Product> ProductsFor(string ingredientId) =>
         Products.Where(p => p.IngredientId == ingredientId);
 

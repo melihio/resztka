@@ -22,6 +22,8 @@ public sealed record PlanRequest
 
     public IReadOnlyDictionary<string, int> Pantry { get; init; } = new Dictionary<string, int>();
 
+    public IReadOnlyDictionary<string, int> DailyDrinks { get; init; } = new Dictionary<string, int>();
+
     public IReadOnlySet<string> ExcludedIngredients { get; init; } = new HashSet<string>();
 
     public IReadOnlySet<FoodCategory> ExcludedCategories { get; init; } = new HashSet<FoodCategory>();

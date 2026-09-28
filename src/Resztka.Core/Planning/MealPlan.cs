@@ -13,6 +13,8 @@ public enum PlanStatus
 
 public sealed record PlannedMeal(int Day, int Slot, MealType MealType, Recipe Recipe);
 
+public sealed record DailyDrink(Recipe Recipe, int Servings);
+
 public sealed record ShoppingItem(Product Product, int Packs)
 {
     public decimal Cost => Product.Price * Packs;
@@ -27,6 +29,8 @@ public sealed record MealPlan(
     IReadOnlyList<Leftover> Leftovers)
 {
     public decimal TotalCost => ShoppingList.Sum(i => i.Cost);
+
+    public IReadOnlyList<DailyDrink> Drinks { get; init; } = [];
 
     public string? Reason { get; init; }
 
