@@ -10,6 +10,10 @@ public sealed class MealPlanner(FoodCatalog catalog)
 
     private const int WasteScale = 1000;
 
+    private const int FullCoverage = 1000;
+
+    private const int NutrientScale = 10;
+
     public MealPlan Plan(PlanRequest request)
     {
         Validate(request);
@@ -48,6 +52,22 @@ public sealed class MealPlanner(FoodCatalog catalog)
                 foreach (var a in day)
                     kcal.AddTerm(a.Var, (long)Math.Round(catalog.NutritionPerServing(a.Recipe).Kcal));
                 model.Add(kcal >= minKcal);
+            }
+        }
+
+        var coverage = LinearExpr.NewBuilder();
+        foreach (var day in assignments.GroupBy(a => a.Day))
+        {
+            foreach (var (nutrient, target) in request.Targets.All().Where(t => t.Target > 0))
+            {
+                var c = model.NewIntVar(0, FullCoverage, $"c_d{day.Key}_{nutrient}");
+
+                var intake = LinearExpr.NewBuilder();
+                foreach (var a in day)
+                    intake.AddTerm(a.Var, Scale(catalog.NutritionPerServing(a.Recipe)[nutrient]) * FullCoverage);
+
+                model.Add(c * Scale(target) <= intake);
+                coverage.AddTerm(c, 1);
             }
         }
 
@@ -94,18 +114,34 @@ public sealed class MealPlanner(FoodCatalog catalog)
             }
         }
 
+        var provenOptimal = true;
+        var timeLimit = request.Goal == PlanGoal.MaxNutrition ? request.TimeLimit / 2 : request.TimeLimit;
+
+        if (request.Goal == PlanGoal.MaxNutrition)
+        {
+            model.Maximize(coverage);
+            var nutritionSolver = CreateSolver(timeLimit);
+            var nutritionStatus = nutritionSolver.Solve(model);
+            if (nutritionStatus is not (CpSolverStatus.Optimal or CpSolverStatus.Feasible))
+                return MealPlan.Infeasible;
+
+            provenOptimal = nutritionStatus == CpSolverStatus.Optimal;
+
+            model.Add(coverage >= (long)Math.Round(nutritionSolver.ObjectiveValue));
+            foreach (var a in assignments)
+                model.AddHint(a.Var, nutritionSolver.Value(a.Var));
+            foreach (var n in packs.Values)
+                model.AddHint(n, nutritionSolver.Value(n));
+        }
+
         model.Minimize(objective);
 
-        var solver = new CpSolver
-        {
-            StringParameters = string.Create(
-                CultureInfo.InvariantCulture,
-                $"max_time_in_seconds:{request.TimeLimit.TotalSeconds}"),
-        };
-
+        var solver = CreateSolver(timeLimit);
         var status = solver.Solve(model);
         if (status is not (CpSolverStatus.Optimal or CpSolverStatus.Feasible))
             return MealPlan.Infeasible;
+
+        provenOptimal &= status == CpSolverStatus.Optimal;
 
         var meals = assignments
             .Where(a => solver.BooleanValue(a.Var))
@@ -120,11 +156,20 @@ public sealed class MealPlanner(FoodCatalog catalog)
             .ToList();
 
         return new MealPlan(
-            status == CpSolverStatus.Optimal ? PlanStatus.Optimal : PlanStatus.Feasible,
+            provenOptimal ? PlanStatus.Optimal : PlanStatus.Feasible,
             meals,
             shoppingList,
             ComputeLeftovers(meals, shoppingList, request));
     }
+
+    private static CpSolver CreateSolver(TimeSpan timeLimit) => new()
+    {
+        StringParameters = string.Create(
+            CultureInfo.InvariantCulture,
+            $"max_time_in_seconds:{timeLimit.TotalSeconds}"),
+    };
+
+    private static long Scale(double amount) => (long)Math.Round(amount * NutrientScale);
 
     private bool IsAllowed(Recipe recipe, MealType slot, int day, PlanRequest request)
     {

@@ -37,6 +37,7 @@ public class MealPlannerTests
         var plan = new MealPlanner(DefaultCatalog()).Plan(new PlanRequest
         {
             Budget = 100m,
+            Goal = PlanGoal.Cheapest,
             Days = 3,
             MealsPerDay = [MealType.Main],
             MaxRepeatsPerRecipe = 2,
@@ -57,6 +58,7 @@ public class MealPlannerTests
         var plan = new MealPlanner(catalog).Plan(new PlanRequest
         {
             Budget = 100m,
+            Goal = PlanGoal.Cheapest,
             Days = 7,
             MealsPerDay = [MealType.Main],
             MaxRepeatsPerRecipe = 7,
@@ -119,6 +121,7 @@ public class MealPlannerTests
         var plan = new MealPlanner(DefaultCatalog()).Plan(new PlanRequest
         {
             Budget = 100m,
+            Goal = PlanGoal.Cheapest,
             Days = 2,
             MealsPerDay = [MealType.Main],
             Pantry = new Dictionary<string, int> { ["pasta"] = 200 },
@@ -186,5 +189,75 @@ public class MealPlannerTests
         Assert.NotEqual(PlanStatus.Infeasible, plan.Status);
         Assert.Equal(21, plan.Meals.Count);
         Assert.True(plan.TotalCost <= 100m);
+    }
+
+    private static readonly Recipe ChickenPasta = new("chicken-pasta", "Chicken pasta", [MealType.Main],
+        new Dictionary<string, int> { ["pasta"] = 100, ["chicken"] = 200 });
+
+    private static FoodCatalog PastaCatalog() => FoodCatalog.Create(
+        [Pasta, Chicken],
+        [Pack("pasta", 100, 3m), Pack("chicken", 200, 10m)],
+        [PlainPasta, ChickenPasta]);
+
+    private static PlanRequest OneMeal(decimal budget, PlanGoal goal, double proteinTarget) => new()
+    {
+        Budget = budget,
+        Days = 1,
+        MealsPerDay = [MealType.Main],
+        Goal = goal,
+        Targets = new NutritionTargets(Kcal: 0, Protein: proteinTarget, Fiber: 0),
+    };
+
+    [Fact]
+    public void Plan_MaxNutrition_SpendsTheBudgetOnMoreNutritiousFood()
+    {
+        var planner = new MealPlanner(PastaCatalog());
+
+        var cheapest = planner.Plan(OneMeal(100m, PlanGoal.Cheapest, 60));
+        var nutritious = planner.Plan(OneMeal(100m, PlanGoal.MaxNutrition, 60));
+
+        Assert.Equal(PlainPasta, Assert.Single(cheapest.Meals).Recipe);
+        Assert.Equal(ChickenPasta, Assert.Single(nutritious.Meals).Recipe);
+        Assert.Equal(13m, nutritious.TotalCost);
+    }
+
+    [Fact]
+    public void Plan_MaxNutrition_StaysWithinBudget()
+    {
+        var plan = new MealPlanner(PastaCatalog()).Plan(OneMeal(5m, PlanGoal.MaxNutrition, 60));
+
+        Assert.Equal(PlainPasta, Assert.Single(plan.Meals).Recipe);
+        Assert.Equal(3m, plan.TotalCost);
+    }
+
+    [Fact]
+    public void Plan_MaxNutrition_DoesNotPayForMoreThanTheTarget()
+    {
+        var plan = new MealPlanner(PastaCatalog()).Plan(OneMeal(100m, PlanGoal.MaxNutrition, 10));
+
+        Assert.Equal(PlainPasta, Assert.Single(plan.Meals).Recipe);
+        Assert.Equal(3m, plan.TotalCost);
+    }
+
+    [Fact]
+    public void Plan_BundledCatalog_MaxNutritionBeatsCheapestOnProtein()
+    {
+        var catalog = CatalogLoader.LoadFromDirectory(RepositoryPaths.DataDirectory);
+        var planner = new MealPlanner(catalog);
+        var request = new PlanRequest
+        {
+            Budget = 100m,
+            Days = 7,
+            MealsPerDay = [MealType.Breakfast, MealType.Main, MealType.Main],
+        };
+
+        var cheapest = planner.Plan(request with { Goal = PlanGoal.Cheapest });
+        var nutritious = planner.Plan(request with { Goal = PlanGoal.MaxNutrition });
+
+        double Protein(MealPlan plan) => plan.Meals.Sum(m => catalog.NutritionPerServing(m.Recipe).Protein);
+
+        Assert.True(nutritious.TotalCost <= 100m);
+        Assert.True(Protein(nutritious) > Protein(cheapest),
+            $"protein: nutritious {Protein(nutritious):F0} g vs cheapest {Protein(cheapest):F0} g");
     }
 }

@@ -14,6 +14,10 @@ public sealed record PlanRequest
 
     public int MaxRepeatsPerRecipe { get; init; } = 3;
 
+    public PlanGoal Goal { get; init; } = PlanGoal.MaxNutrition;
+
+    public NutritionTargets Targets { get; init; } = NutritionTargets.Adult;
+
     public int? MinKcalPerDay { get; init; }
 
     public IReadOnlyDictionary<string, int> Pantry { get; init; } = new Dictionary<string, int>();
