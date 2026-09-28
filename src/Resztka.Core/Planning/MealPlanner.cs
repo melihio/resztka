@@ -178,10 +178,13 @@ public sealed class MealPlanner(FoodCatalog catalog)
 
         foreach (var ingredientId in recipe.Ingredients.Keys)
         {
-            if (request.ExcludedIngredients.Contains(ingredientId))
+            var ingredient = catalog.GetIngredient(ingredientId);
+
+            if (request.ExcludedIngredients.Contains(ingredientId) ||
+                ingredient.Categories.Overlaps(request.ExcludedCategories))
                 return false;
 
-            if (catalog.GetIngredient(ingredientId).ShelfLifeDays is { } shelfLife && day >= shelfLife)
+            if (ingredient.ShelfLifeDays is { } shelfLife && day >= shelfLife)
                 return false;
         }
 

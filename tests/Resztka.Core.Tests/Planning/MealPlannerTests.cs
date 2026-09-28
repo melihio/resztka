@@ -260,4 +260,56 @@ public class MealPlannerTests
         Assert.True(Protein(nutritious) > Protein(cheapest),
             $"protein: nutritious {Protein(nutritious):F0} g vs cheapest {Protein(cheapest):F0} g");
     }
+
+    [Fact]
+    public void Plan_ExcludedCategories_NeverAppear()
+    {
+        var chicken = Chicken with { Categories = new HashSet<FoodCategory> { FoodCategory.Chicken } };
+        var catalog = FoodCatalog.Create(
+            [Rice, Pasta, chicken],
+            [Pack("rice", 400, 4m), Pack("pasta", 500, 3m), Pack("chicken", 150, 1m)],
+            [ChickenPilaf, PlainPasta, PlainRice]);
+
+        var plan = new MealPlanner(catalog).Plan(new PlanRequest
+        {
+            Budget = 100m,
+            Days = 3,
+            MealsPerDay = [MealType.Main],
+            ExcludedCategories = new HashSet<FoodCategory> { FoodCategory.Chicken },
+        });
+
+        Assert.Equal(PlanStatus.Optimal, plan.Status);
+        Assert.DoesNotContain(plan.Meals, m => m.Recipe == ChickenPilaf);
+    }
+
+    [Theory]
+    [InlineData(Diet.Vegetarian)]
+    [InlineData(Diet.Pescatarian)]
+    public void Plan_BundledCatalog_SupportsDiets(Diet diet)
+    {
+        var catalog = CatalogLoader.LoadFromDirectory(RepositoryPaths.DataDirectory);
+        var excluded = Diets.ExcludedCategories(diet);
+
+        var plan = new MealPlanner(catalog).Plan(new PlanRequest
+        {
+            Budget = 100m,
+            Days = 7,
+            ExcludedCategories = excluded,
+            TimeLimit = TimeSpan.FromSeconds(5),
+        });
+
+        Assert.NotEqual(PlanStatus.Infeasible, plan.Status);
+        Assert.All(plan.Meals.SelectMany(m => m.Recipe.Ingredients.Keys),
+            id => Assert.False(catalog.GetIngredient(id).Categories.Overlaps(excluded), $"{id} is not allowed in a {diet} diet"));
+    }
+
+    [Fact]
+    public void Diets_Vegan_ExcludesAllAnimalProducts()
+    {
+        var excluded = Diets.ExcludedCategories(Diet.Vegan);
+
+        Assert.Equal(
+            [FoodCategory.Chicken, FoodCategory.Pork, FoodCategory.Beef, FoodCategory.Fish, FoodCategory.Eggs, FoodCategory.Dairy],
+            excluded.Order());
+    }
 }

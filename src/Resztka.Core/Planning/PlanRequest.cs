@@ -24,5 +24,7 @@ public sealed record PlanRequest
 
     public IReadOnlySet<string> ExcludedIngredients { get; init; } = new HashSet<string>();
 
+    public IReadOnlySet<FoodCategory> ExcludedCategories { get; init; } = new HashSet<FoodCategory>();
+
     public TimeSpan TimeLimit { get; init; } = TimeSpan.FromSeconds(10);
 }
