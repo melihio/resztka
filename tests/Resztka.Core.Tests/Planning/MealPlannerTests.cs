@@ -219,6 +219,8 @@ public class MealPlannerTests
             Days = 7,
             MealsPerDay = [MealType.Breakfast, MealType.Main, MealType.Main],
             MinKcalPerDay = 1800,
+            Goal = PlanGoal.Cheapest,
+            TimeLimit = TimeSpan.FromSeconds(15),
         });
 
         Assert.NotEqual(PlanStatus.Infeasible, plan.Status);
