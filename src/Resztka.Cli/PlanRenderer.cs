@@ -59,7 +59,11 @@ internal static class PlanRenderer
         var stores = string.Join(", ", plan.ShoppingList.Select(i => i.Product.Store).Distinct());
         output.WriteLine($"Shopping list ({stores})");
         foreach (var item in plan.ShoppingList)
+        {
             output.WriteLine(Row($"  {item.Packs} × {item.Product.Name}", Money(item.Cost)));
+            if (item.Product.NameEn is { } english)
+                output.WriteLine($"      {english}");
+        }
         output.WriteLine(new string('─', Width));
         output.WriteLine(Row("  Total", Money(plan.TotalCost)));
         output.WriteLine(Row("  Left of budget", Money(request.Budget - plan.TotalCost)));

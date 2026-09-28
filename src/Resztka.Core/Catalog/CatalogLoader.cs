@@ -35,7 +35,7 @@ public static class CatalogLoader
             {
                 var store = Read<StoreDto>(file);
                 products.AddRange(store.Products.Select(p =>
-                    new Product(p.Id, p.Name, p.Ingredient, p.PackSize, p.Price, store.Store)));
+                    new Product(p.Id, p.Name, p.Ingredient, p.PackSize, p.Price, store.Store) { NameEn = p.NameEn }));
             }
         }
 
@@ -61,5 +61,5 @@ public static class CatalogLoader
 
     private sealed record StoreDto(string Store, string PricesAsOf, List<ProductDto> Products);
 
-    private sealed record ProductDto(string Id, string Name, string Ingredient, int PackSize, decimal Price);
+    private sealed record ProductDto(string Id, string Name, string? NameEn, string Ingredient, int PackSize, decimal Price);
 }

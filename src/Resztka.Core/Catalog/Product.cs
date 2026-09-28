@@ -6,4 +6,7 @@ public sealed record Product(
     string IngredientId,
     int PackSize,
     decimal Price,
-    string Store);
+    string Store)
+{
+    public string? NameEn { get; init; }
+}

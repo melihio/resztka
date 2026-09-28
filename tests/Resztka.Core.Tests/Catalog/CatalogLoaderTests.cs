@@ -49,6 +49,15 @@ public class CatalogLoaderTests
     }
 
     [Fact]
+    public void LoadFromDirectory_BundledData_EveryProductHasAnEnglishName()
+    {
+        var catalog = CatalogLoader.LoadFromDirectory(RepositoryPaths.DataDirectory);
+
+        Assert.All(catalog.Products, p => Assert.False(string.IsNullOrWhiteSpace(p.NameEn), $"{p.Id} has no nameEn"));
+        Assert.Equal("Ground coffee 250 g", catalog.Products.Single(p => p.Id == "bdr-coffee-250").NameEn);
+    }
+
+    [Fact]
     public void LoadFromDirectory_BundledData_ReadsCategories()
     {
         var catalog = CatalogLoader.LoadFromDirectory(RepositoryPaths.DataDirectory);
