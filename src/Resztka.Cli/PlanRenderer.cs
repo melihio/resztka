@@ -21,8 +21,11 @@ internal static class PlanRenderer
 
         if (plan.Status == PlanStatus.Infeasible)
         {
-            output.WriteLine("No plan fits this budget. Try a higher budget, fewer meals, more");
-            output.WriteLine("allowed repeats (--max-repeats), a lower --min-kcal or fewer --avoid categories.");
+            output.WriteLine("No plan is possible.");
+            output.WriteLine(plan.Reason);
+            output.WriteLine();
+            output.WriteLine("Things to try: a higher --budget, fewer --meals or --days, a higher --max-repeats,");
+            output.WriteLine("a lower --min-kcal, or fewer --avoid categories.");
             return;
         }
 

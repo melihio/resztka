@@ -28,5 +28,7 @@ public sealed record MealPlan(
 {
     public decimal TotalCost => ShoppingList.Sum(i => i.Cost);
 
-    public static MealPlan Infeasible { get; } = new(PlanStatus.Infeasible, [], [], []);
+    public string? Reason { get; init; }
+
+    public static MealPlan Infeasible(string reason) => new(PlanStatus.Infeasible, [], [], []) { Reason = reason };
 }

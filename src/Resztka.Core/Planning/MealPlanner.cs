@@ -35,9 +35,25 @@ public sealed class MealPlanner(FoodCatalog catalog)
                 }
 
                 if (slotVars.Count == 0)
-                    return MealPlan.Infeasible;
+                {
+                    return MealPlan.Infeasible(
+                        $"No {Name(slots[slot])} recipe is possible on day {day + 1}: every one uses an avoided " +
+                        "ingredient or one that will have spoiled by then.");
+                }
 
                 model.Add(LinearExpr.Sum(slotVars) == 1);
+            }
+        }
+
+        foreach (var mealType in slots.Distinct())
+        {
+            var needed = slots.Count(s => s == mealType) * request.Days;
+            var allowed = assignments.Where(a => slots[a.Slot] == mealType).Select(a => a.Recipe).Distinct().Count();
+            if (allowed * request.MaxRepeatsPerRecipe < needed)
+            {
+                return MealPlan.Infeasible(
+                    $"Only {allowed} {Name(mealType)} recipe(s) are allowed, and at most {request.MaxRepeatsPerRecipe} " +
+                    $"repeats each cannot fill {needed} {Name(mealType)} slots. Allow more repeats per recipe.");
             }
         }
 
@@ -123,7 +139,7 @@ public sealed class MealPlanner(FoodCatalog catalog)
             var nutritionSolver = CreateSolver(timeLimit);
             var nutritionStatus = nutritionSolver.Solve(model);
             if (nutritionStatus is not (CpSolverStatus.Optimal or CpSolverStatus.Feasible))
-                return MealPlan.Infeasible;
+                return MealPlan.Infeasible(NoCombination(nutritionStatus));
 
             provenOptimal = nutritionStatus == CpSolverStatus.Optimal;
 
@@ -139,7 +155,7 @@ public sealed class MealPlanner(FoodCatalog catalog)
         var solver = CreateSolver(timeLimit);
         var status = solver.Solve(model);
         if (status is not (CpSolverStatus.Optimal or CpSolverStatus.Feasible))
-            return MealPlan.Infeasible;
+            return MealPlan.Infeasible(NoCombination(status));
 
         provenOptimal &= status == CpSolverStatus.Optimal;
 
@@ -168,6 +184,12 @@ public sealed class MealPlanner(FoodCatalog catalog)
             CultureInfo.InvariantCulture,
             $"max_time_in_seconds:{timeLimit.TotalSeconds}"),
     };
+
+    private static string NoCombination(CpSolverStatus status) => status == CpSolverStatus.Infeasible
+        ? "No combination of recipes fits the budget together with the other constraints (repeats, minimum kcal)."
+        : "The solver ran out of time before finding any plan. Try a longer time limit.";
+
+    private static string Name(MealType mealType) => mealType.ToString().ToLowerInvariant();
 
     private static long Scale(double amount) => (long)Math.Round(amount * NutrientScale);
 

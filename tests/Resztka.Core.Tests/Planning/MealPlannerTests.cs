@@ -94,6 +94,41 @@ public class MealPlannerTests
         });
 
         Assert.Equal(PlanStatus.Infeasible, plan.Status);
+        Assert.Contains("budget", plan.Reason);
+    }
+
+    [Fact]
+    public void Plan_NoAllowedRecipeForASlot_ExplainsWhy()
+    {
+        var catalog = FoodCatalog.Create([Rice, Chicken], [Pack("rice", 400, 4m), Pack("chicken", 150, 1m)], [ChickenPilaf]);
+
+        var plan = new MealPlanner(catalog).Plan(new PlanRequest
+        {
+            Budget = 100m,
+            Days = 4,
+            MealsPerDay = [MealType.Main],
+            MaxRepeatsPerRecipe = 4,
+        });
+
+        Assert.Equal(PlanStatus.Infeasible, plan.Status);
+        Assert.Equal(
+            "No main recipe is possible on day 4: every one uses an avoided ingredient or one that will have spoiled by then.",
+            plan.Reason);
+    }
+
+    [Fact]
+    public void Plan_TooFewRecipesForTheRepeatLimit_ExplainsWhy()
+    {
+        var plan = new MealPlanner(DefaultCatalog()).Plan(new PlanRequest
+        {
+            Budget = 100m,
+            Days = 7,
+            MealsPerDay = [MealType.Main],
+            MaxRepeatsPerRecipe = 1,
+        });
+
+        Assert.Equal(PlanStatus.Infeasible, plan.Status);
+        Assert.StartsWith("Only 4 main recipe(s) are allowed", plan.Reason);
     }
 
     [Fact]
