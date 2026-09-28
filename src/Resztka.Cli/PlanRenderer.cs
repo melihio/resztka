@@ -6,14 +6,15 @@ namespace Resztka.Cli;
 
 internal static class PlanRenderer
 {
-    private const int Width = 64;
+    private const int Width = 72;
 
     private static readonly CultureInfo Culture = CultureInfo.InvariantCulture;
 
     public static void Write(TextWriter output, FoodCatalog catalog, PlanRequest request, MealPlan plan)
     {
         var people = request.People == 1 ? "1 person" : $"{request.People} people";
-        output.WriteLine($"resztka · {request.Days} days · {people} · budget {Money(request.Budget)}");
+        var goal = request.Goal == PlanGoal.MaxNutrition ? "most nutrition" : "cheapest";
+        output.WriteLine($"resztka · {request.Days} days · {people} · budget {Money(request.Budget)} · goal: {goal}");
         output.WriteLine();
 
         if (plan.Status == PlanStatus.Infeasible)
@@ -25,12 +26,21 @@ internal static class PlanRenderer
 
         foreach (var day in plan.Meals.GroupBy(m => m.Day))
         {
-            var kcal = day.Sum(m => catalog.NutritionPerServing(m.Recipe).Kcal);
-            output.WriteLine(Row($"Day {day.Key + 1}", $"{kcal:F0} kcal"));
+            var total = day.Aggregate(default(Nutrition), (sum, m) => sum + catalog.NutritionPerServing(m.Recipe));
+            output.WriteLine(Row($"Day {day.Key + 1}", Summary(total)));
             foreach (var meal in day)
-                output.WriteLine($"  {Label(meal.MealType),-10} {meal.Recipe.Name}");
+            {
+                var nutrition = catalog.NutritionPerServing(meal.Recipe);
+                output.WriteLine(Row(
+                    $"  {Label(meal.MealType),-10} {meal.Recipe.Name}",
+                    $"{nutrition.Kcal:F0} kcal · {nutrition.Protein:F0} g protein"));
+            }
+
             output.WriteLine();
         }
+
+        WriteNutrition(output, catalog, request, plan);
+        output.WriteLine();
 
         var stores = string.Join(", ", plan.ShoppingList.Select(i => i.Product.Store).Distinct());
         output.WriteLine($"Shopping list ({stores})");
@@ -60,9 +70,48 @@ internal static class PlanRenderer
         if (plan.Status == PlanStatus.Feasible)
         {
             output.WriteLine();
-            output.WriteLine("Note: the time limit was reached, a cheaper plan may exist.");
+            output.WriteLine("Note: the time limit was reached before this plan could be proven the best one.");
+            output.WriteLine("A slightly better plan may exist; --time-limit lets the solver search longer.");
         }
     }
+
+    private static void WriteNutrition(TextWriter output, FoodCatalog catalog, PlanRequest request, MealPlan plan)
+    {
+        var days = plan.Meals.GroupBy(m => m.Day)
+            .Select(d => d.Aggregate(default(Nutrition), (sum, m) => sum + catalog.NutritionPerServing(m.Recipe)))
+            .ToList();
+        var average = days.Aggregate(default(Nutrition), (sum, d) => sum + d) / days.Count;
+        var targets = request.Targets.All().ToDictionary(t => t.Nutrient, t => t.Target);
+
+        output.WriteLine("Nutrition per person, daily average");
+        output.WriteLine($"  {"",-12}{"average",10}{"lowest day",12}{"target",10}{"",8}");
+        foreach (var nutrient in Enum.GetValues<Nutrient>())
+        {
+            var unit = nutrient == Nutrient.Kcal ? "kcal" : "g";
+            var lowest = days.Min(d => d[nutrient]);
+            var line = $"  {NutrientName(nutrient),-12}{Quantity(average[nutrient], unit),10}{Quantity(lowest, unit),12}";
+
+            if (targets.GetValueOrDefault(nutrient) is > 0 and var target)
+                line += $"{Quantity(target, unit),10}{average[nutrient] / target,8:P0}";
+
+            output.WriteLine(line);
+        }
+    }
+
+    private static string Summary(Nutrition n) =>
+        $"{n.Kcal:F0} kcal · {n.Protein:F0} g protein · {n.Fiber:F0} g fibre";
+
+    private static string Quantity(double value, string unit) => $"{value.ToString("F0", Culture)} {unit}";
+
+    private static string NutrientName(Nutrient nutrient) => nutrient switch
+    {
+        Nutrient.Kcal => "Energy",
+        Nutrient.Protein => "Protein",
+        Nutrient.Fat => "Fat",
+        Nutrient.Carbs => "Carbs",
+        Nutrient.Fiber => "Fibre",
+        _ => nutrient.ToString(),
+    };
 
     private static string Row(string left, string right) =>
         left.Length + right.Length + 1 >= Width

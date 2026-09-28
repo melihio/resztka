@@ -14,7 +14,7 @@ var budgetOption = new Option<decimal>("--budget", "-b")
 
 var daysOption = new Option<int>("--days", "-d")
 {
-    Description = "Number of days to plan.",
+    Description = "Number of days to plan, starting on the day of the shop.",
     DefaultValueFactory = _ => 7,
 };
 
@@ -30,9 +30,34 @@ var peopleOption = new Option<int>("--people", "-p")
     DefaultValueFactory = _ => 1,
 };
 
+var goalOption = new Option<string>("--goal", "-g")
+{
+    Description = "nutrition: the most nutrition the budget can buy. cheapest: spend as little as possible.",
+    DefaultValueFactory = _ => "nutrition",
+};
+goalOption.AcceptOnlyFromAmong("nutrition", "cheapest");
+
+var kcalOption = new Option<double>("--kcal")
+{
+    Description = "Daily energy target per person, in kcal (0 to ignore).",
+    DefaultValueFactory = _ => NutritionTargets.Adult.Kcal,
+};
+
+var proteinOption = new Option<double>("--protein")
+{
+    Description = "Daily protein target per person, in grams (0 to ignore).",
+    DefaultValueFactory = _ => NutritionTargets.Adult.Protein,
+};
+
+var fiberOption = new Option<double>("--fiber")
+{
+    Description = "Daily fibre target per person, in grams (0 to ignore).",
+    DefaultValueFactory = _ => NutritionTargets.Adult.Fiber,
+};
+
 var minKcalOption = new Option<int?>("--min-kcal")
 {
-    Description = "Minimum energy per person per day.",
+    Description = "Hard minimum energy per person per day; no plan below it is accepted.",
 };
 
 var maxRepeatsOption = new Option<int>("--max-repeats")
@@ -51,6 +76,12 @@ var excludeOption = new Option<string?>("--exclude", "-x")
     Description = "Comma separated ingredients to avoid, e.g. minced-meat,kielbasa.",
 };
 
+var timeLimitOption = new Option<double>("--time-limit")
+{
+    Description = "Maximum solver time in seconds.",
+    DefaultValueFactory = _ => 10,
+};
+
 var dataOption = new Option<DirectoryInfo>("--data")
 {
     Description = "Catalog directory with ingredients.json, recipes.json and products/.",
@@ -63,10 +94,15 @@ var root = new RootCommand("resztka — plan a week of meals on a fixed budget, 
     daysOption,
     mealsOption,
     peopleOption,
+    goalOption,
+    kcalOption,
+    proteinOption,
+    fiberOption,
     minKcalOption,
     maxRepeatsOption,
     pantryOption,
     excludeOption,
+    timeLimitOption,
     dataOption,
 };
 
@@ -82,10 +118,16 @@ root.SetAction(parseResult =>
             Days = parseResult.GetValue(daysOption),
             MealsPerDay = ArgumentParsing.ParseMeals(parseResult.GetValue(mealsOption)!),
             People = parseResult.GetValue(peopleOption),
+            Goal = parseResult.GetValue(goalOption) == "cheapest" ? PlanGoal.Cheapest : PlanGoal.MaxNutrition,
+            Targets = new NutritionTargets(
+                parseResult.GetValue(kcalOption),
+                parseResult.GetValue(proteinOption),
+                parseResult.GetValue(fiberOption)),
             MinKcalPerDay = parseResult.GetValue(minKcalOption),
             MaxRepeatsPerRecipe = parseResult.GetValue(maxRepeatsOption),
             Pantry = ArgumentParsing.ParsePantry(parseResult.GetValue(pantryOption)),
             ExcludedIngredients = ArgumentParsing.ParseList(parseResult.GetValue(excludeOption)).ToHashSet(),
+            TimeLimit = TimeSpan.FromSeconds(parseResult.GetValue(timeLimitOption)),
         };
 
         var plan = new MealPlanner(catalog).Plan(request);
