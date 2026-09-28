@@ -19,7 +19,7 @@
   { "id": "eggs",           "name": "Eggs",                 "unit": "piece",      "kcalPerUnit": 78,   "shelfLifeDays": 21 },
   { "id": "kielbasa",       "name": "Kielbasa",             "unit": "gram",       "kcalPerUnit": 3.0,  "shelfLifeDays": 7 },
   { "id": "cheese",         "name": "Hard cheese (sliced)", "unit": "gram",       "kcalPerUnit": 3.5,  "shelfLifeDays": 7 },
-  { "id": "milk",           "name": "Milk 2%",              "unit": "millilitre", "kcalPerUnit": 0.5,  "shelfLifeDays": 5 },
+  { "id": "milk",           "name": "UHT milk 2%",          "unit": "millilitre", "kcalPerUnit": 0.5,  "shelfLifeDays": 7 },
   { "id": "banana",         "name": "Banana",               "unit": "piece",      "kcalPerUnit": 105,  "shelfLifeDays": 5 },
   { "id": "peppers",        "name": "Bell pepper",          "unit": "gram",       "kcalPerUnit": 0.3,  "shelfLifeDays": 5 },
   { "id": "bread",          "name": "Bread",                "unit": "gram",       "kcalPerUnit": 2.5,  "shelfLifeDays": 3 },

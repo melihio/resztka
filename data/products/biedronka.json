@@ -23,7 +23,7 @@
     { "id": "bdr-eggs-10",         "name": "Jaja L 10 szt.",                "ingredient": "eggs",           "packSize": 10,   "price": 9.99 },
     { "id": "bdr-kielbasa-400",    "name": "Kiełbasa podwawelska 400 g",    "ingredient": "kielbasa",       "packSize": 400,  "price": 9.99 },
     { "id": "bdr-cheese-150",      "name": "Ser gouda plastry 150 g",       "ingredient": "cheese",         "packSize": 150,  "price": 5.99 },
-    { "id": "bdr-milk-1000",       "name": "Mleko 2% 1 l",                  "ingredient": "milk",           "packSize": 1000, "price": 3.49 },
+    { "id": "bdr-milk-1000",       "name": "Mleko UHT 2% 1 l",              "ingredient": "milk",           "packSize": 1000, "price": 3.49 },
     { "id": "bdr-banana-6",        "name": "Banany 1 kg (ok. 6 szt.)",      "ingredient": "banana",         "packSize": 6,    "price": 5.99 },
     { "id": "bdr-peppers-500",     "name": "Papryka mix 500 g",             "ingredient": "peppers",        "packSize": 500,  "price": 6.99 },
     { "id": "bdr-bread-500",       "name": "Chleb pszenno-żytni 500 g",     "ingredient": "bread",          "packSize": 500,  "price": 3.99 },

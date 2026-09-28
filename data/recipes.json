@@ -4,6 +4,10 @@
     "ingredients": { "oats": 60, "milk": 250, "banana": 1, "sugar": 5 }
   },
   {
+    "id": "oatmeal-apple", "name": "Oatmeal with apple and cinnamon", "mealTypes": ["breakfast"],
+    "ingredients": { "oats": 60, "milk": 250, "apple": 1, "sugar": 5 }
+  },
+  {
     "id": "scrambled-eggs", "name": "Scrambled eggs on bread", "mealTypes": ["breakfast"],
     "ingredients": { "eggs": 3, "butter": 10, "bread": 100 }
   },
