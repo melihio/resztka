@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/Resztka.Api/Resztka.Api.csproj" />
     <Project Path="src/Resztka.Cli/Resztka.Cli.csproj" />
     <Project Path="src/Resztka.Core/Resztka.Core.csproj" />
   </Folder>
