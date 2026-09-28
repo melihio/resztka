@@ -1,0 +1,74 @@
+[
+  {
+    "id": "oatmeal-banana", "name": "Oatmeal with banana", "mealTypes": ["breakfast"],
+    "ingredients": { "oats": 60, "milk": 250, "banana": 1, "sugar": 5 }
+  },
+  {
+    "id": "scrambled-eggs", "name": "Scrambled eggs on bread", "mealTypes": ["breakfast"],
+    "ingredients": { "eggs": 3, "butter": 10, "bread": 100 }
+  },
+  {
+    "id": "cheese-sandwiches", "name": "Cheese sandwiches", "mealTypes": ["breakfast"],
+    "ingredients": { "bread": 120, "butter": 10, "cheese": 40 }
+  },
+  {
+    "id": "rice-pudding", "name": "Rice pudding (sütlaç)", "mealTypes": ["breakfast"],
+    "ingredients": { "rice": 60, "milk": 400, "sugar": 30 }
+  },
+  {
+    "id": "menemen", "name": "Menemen with bread", "mealTypes": ["breakfast"],
+    "ingredients": { "eggs": 2, "peppers": 100, "tomatoes-can": 150, "oil": 10, "bread": 80 }
+  },
+  {
+    "id": "apple-pancakes", "name": "Apple pancakes (racuchy)", "mealTypes": ["breakfast"],
+    "ingredients": { "flour": 80, "milk": 150, "eggs": 1, "apple": 1, "oil": 15, "sugar": 10 }
+  },
+  {
+    "id": "chicken-pilaf", "name": "Chicken pilaf (tavuklu pilav)", "mealTypes": ["main"],
+    "ingredients": { "rice": 100, "chicken-breast": 150, "onion": 50, "butter": 10, "oil": 10 }
+  },
+  {
+    "id": "chicken-potatoes", "name": "Roast chicken with potatoes and carrots", "mealTypes": ["main"],
+    "ingredients": { "chicken-breast": 150, "potatoes": 300, "carrot": 100, "oil": 15 }
+  },
+  {
+    "id": "lentil-soup", "name": "Red lentil soup (mercimek çorbası)", "mealTypes": ["main"],
+    "ingredients": { "red-lentils": 80, "onion": 50, "carrot": 50, "oil": 10, "bread": 80 }
+  },
+  {
+    "id": "pasta-tomato", "name": "Pasta with tomato sauce and cheese", "mealTypes": ["main"],
+    "ingredients": { "pasta": 120, "tomatoes-can": 200, "onion": 50, "oil": 10, "cheese": 20 }
+  },
+  {
+    "id": "bolognese", "name": "Spaghetti bolognese", "mealTypes": ["main"],
+    "ingredients": { "pasta": 120, "minced-meat": 125, "tomatoes-can": 200, "onion": 50, "oil": 10 }
+  },
+  {
+    "id": "kofte-potatoes", "name": "Köfte with fried potatoes", "mealTypes": ["main"],
+    "ingredients": { "minced-meat": 125, "onion": 30, "bread": 30, "potatoes": 300, "oil": 20 }
+  },
+  {
+    "id": "cabbage-kielbasa", "name": "Fried cabbage with kielbasa", "mealTypes": ["main"],
+    "ingredients": { "cabbage": 400, "kielbasa": 100, "onion": 50, "oil": 10, "bread": 80 }
+  },
+  {
+    "id": "potato-soup", "name": "Potato soup with kielbasa", "mealTypes": ["main"],
+    "ingredients": { "potatoes": 300, "carrot": 80, "onion": 50, "kielbasa": 50, "oil": 5 }
+  },
+  {
+    "id": "eggs-potatoes", "name": "Fried eggs with potatoes", "mealTypes": ["main"],
+    "ingredients": { "potatoes": 350, "eggs": 2, "oil": 15 }
+  },
+  {
+    "id": "chickpea-stew", "name": "Chickpea stew with rice (nohut)", "mealTypes": ["main"],
+    "ingredients": { "chickpeas": 240, "tomatoes-can": 200, "onion": 50, "oil": 10, "rice": 80 }
+  },
+  {
+    "id": "tuna-pasta", "name": "Tuna pasta with vegetables", "mealTypes": ["main"],
+    "ingredients": { "pasta": 120, "tuna": 120, "frozen-veg": 150, "oil": 10 }
+  },
+  {
+    "id": "egg-fried-rice", "name": "Egg fried rice with vegetables", "mealTypes": ["main"],
+    "ingredients": { "rice": 100, "eggs": 2, "frozen-veg": 150, "oil": 15 }
+  }
+]
