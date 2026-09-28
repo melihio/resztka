@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Budget meal planner that accounts for package sizes and reuses leftovers.</Description>
+  </PropertyGroup>
+
+</Project>
