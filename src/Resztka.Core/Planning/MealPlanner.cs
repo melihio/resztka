@@ -203,7 +203,10 @@ public sealed class MealPlanner(FoodCatalog catalog)
         foreach (var ingredientId in request.Pantry.Keys.Concat(request.ExcludedIngredients))
         {
             if (!catalog.Ingredients.Any(i => i.Id == ingredientId))
-                throw new ArgumentException($"Unknown ingredient '{ingredientId}'.", nameof(request));
+            {
+                var known = string.Join(", ", catalog.Ingredients.Select(i => i.Id).Order(StringComparer.Ordinal));
+                throw new ArgumentException($"Unknown ingredient '{ingredientId}'. Known ingredients: {known}.", nameof(request));
+            }
         }
     }
 

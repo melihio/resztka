@@ -95,7 +95,10 @@ root.SetAction(parseResult =>
     }
     catch (Exception ex) when (ex is ArgumentException or CatalogValidationException or IOException or FormatException)
     {
-        Console.Error.WriteLine($"error: {ex.Message}");
+        var message = ex is ArgumentException { ParamName: { } param }
+            ? ex.Message.Replace($" (Parameter '{param}')", "")
+            : ex.Message;
+        Console.Error.WriteLine($"error: {message}");
         return ExitCodes.InvalidInput;
     }
 });
