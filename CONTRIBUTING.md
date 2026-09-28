@@ -20,10 +20,18 @@ Thanks for helping! Most contributions are data, not code.
    - `mealTypes` is `breakfast`, `main` or both.
 
 2. If the recipe needs a new ingredient, add it to [`data/ingredients.json`](data/ingredients.json)
-   with its unit, kcal per unit and `shelfLifeDays` (leave it out for dry or frozen goods),
+   with its unit, `nutrition` and `shelfLifeDays` (leave it out for dry or frozen goods),
    and add at least one product for it in a store file.
 
-3. Run the tests. They check that every ingredient can be bought:
+   Copy `nutrition` straight from a Polish/EU label: values per 100 g or 100 ml (per piece
+   for `piece` ingredients), with carbs *excluding* fibre:
+
+   ```json
+   "nutrition": { "kcal": 350, "protein": 7, "fat": 0.6, "carbs": 78, "fiber": 1.3 }
+   ```
+
+3. Run the tests. They check that every ingredient can be bought and that kcal roughly
+   matches the macronutrients, which catches most typos:
 
    ```bash
    dotnet test

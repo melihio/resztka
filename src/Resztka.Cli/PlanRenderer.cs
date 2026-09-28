@@ -25,7 +25,7 @@ internal static class PlanRenderer
 
         foreach (var day in plan.Meals.GroupBy(m => m.Day))
         {
-            var kcal = day.Sum(m => catalog.KcalPerServing(m.Recipe));
+            var kcal = day.Sum(m => catalog.NutritionPerServing(m.Recipe).Kcal);
             output.WriteLine(Row($"Day {day.Key + 1}", $"{kcal:F0} kcal"));
             foreach (var meal in day)
                 output.WriteLine($"  {Label(meal.MealType),-10} {meal.Recipe.Name}");

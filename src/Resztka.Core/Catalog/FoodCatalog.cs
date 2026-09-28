@@ -26,8 +26,8 @@ public sealed class FoodCatalog
     public IEnumerable<Product> ProductsFor(string ingredientId) =>
         Products.Where(p => p.IngredientId == ingredientId);
 
-    public double KcalPerServing(Recipe recipe) =>
-        recipe.Ingredients.Sum(i => _ingredients[i.Key].KcalPerUnit * i.Value);
+    public Nutrition NutritionPerServing(Recipe recipe) =>
+        recipe.Ingredients.Aggregate(default(Nutrition), (sum, i) => sum + _ingredients[i.Key].NutritionOf(i.Value));
 
     public static FoodCatalog Create(
         IReadOnlyList<Ingredient> ingredients,
@@ -44,8 +44,12 @@ public sealed class FoodCatalog
 
         foreach (var ingredient in ingredients)
         {
-            if (ingredient.KcalPerUnit < 0)
-                errors.Add($"ingredient '{ingredient.Id}' has negative kcal");
+            foreach (var nutrient in Enum.GetValues<Nutrient>())
+            {
+                if (ingredient.Nutrition[nutrient] < 0)
+                    errors.Add($"ingredient '{ingredient.Id}' has negative {nutrient.ToString().ToLowerInvariant()}");
+            }
+
             if (ingredient.ShelfLifeDays is < 1)
                 errors.Add($"ingredient '{ingredient.Id}' must have a shelf life of at least 1 day");
         }

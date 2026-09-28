@@ -34,4 +34,17 @@ public class CatalogLoaderTests
         foreach (var mealType in Enum.GetValues<MealType>())
             Assert.Contains(catalog.Recipes, r => r.MealTypes.Contains(mealType));
     }
+
+    [Fact]
+    public void LoadFromDirectory_BundledData_KcalMatchesMacros()
+    {
+        var catalog = CatalogLoader.LoadFromDirectory(RepositoryPaths.DataDirectory);
+
+        Assert.All(catalog.Ingredients, i =>
+        {
+            var difference = Math.Abs(i.Nutrition.Kcal - i.Nutrition.KcalFromMacros);
+            Assert.True(difference <= Math.Max(5, i.Nutrition.Kcal * 0.1),
+                $"{i.Id}: {i.Nutrition.Kcal} kcal on the label but {i.Nutrition.KcalFromMacros:F0} kcal from macros");
+        });
+    }
 }

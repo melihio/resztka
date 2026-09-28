@@ -46,7 +46,7 @@ public sealed class MealPlanner(FoodCatalog catalog)
             {
                 var kcal = LinearExpr.NewBuilder();
                 foreach (var a in day)
-                    kcal.AddTerm(a.Var, (long)Math.Round(catalog.KcalPerServing(a.Recipe)));
+                    kcal.AddTerm(a.Var, (long)Math.Round(catalog.NutritionPerServing(a.Recipe).Kcal));
                 model.Add(kcal >= minKcal);
             }
         }

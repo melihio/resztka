@@ -17,7 +17,7 @@ public static class CatalogLoader
     public static FoodCatalog LoadFromDirectory(string directory)
     {
         var ingredients = Read<List<IngredientDto>>(Path.Combine(directory, "ingredients.json"))
-            .Select(i => new Ingredient(i.Id, i.Name, i.Unit, i.KcalPerUnit, i.ShelfLifeDays))
+            .Select(i => new Ingredient(i.Id, i.Name, i.Unit, i.Nutrition, i.ShelfLifeDays))
             .ToList();
 
         var recipes = Read<List<RecipeDto>>(Path.Combine(directory, "recipes.json"))
@@ -46,7 +46,7 @@ public static class CatalogLoader
             ?? throw new InvalidDataException($"'{path}' is empty.");
     }
 
-    private sealed record IngredientDto(string Id, string Name, Unit Unit, double KcalPerUnit, int? ShelfLifeDays);
+    private sealed record IngredientDto(string Id, string Name, Unit Unit, Nutrition Nutrition, int? ShelfLifeDays);
 
     private sealed record RecipeDto(string Id, string Name, List<MealType> MealTypes, Dictionary<string, int> Ingredients);
 

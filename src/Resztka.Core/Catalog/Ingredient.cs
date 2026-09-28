@@ -4,8 +4,11 @@ public sealed record Ingredient(
     string Id,
     string Name,
     Unit Unit,
-    double KcalPerUnit,
+    Nutrition Nutrition,
     int? ShelfLifeDays = null)
 {
     public bool IsPerishable => ShelfLifeDays is not null;
+
+    public Nutrition NutritionOf(int amount) =>
+        Unit == Unit.Piece ? Nutrition * amount : Nutrition * amount / 100;
 }

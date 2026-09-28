@@ -5,10 +5,10 @@ namespace Resztka.Core.Tests.Planning;
 
 public class MealPlannerTests
 {
-    private static readonly Ingredient Rice = new("rice", "Rice", Unit.Gram, 3.5);
-    private static readonly Ingredient Pasta = new("pasta", "Pasta", Unit.Gram, 3.6);
-    private static readonly Ingredient Chicken = new("chicken", "Chicken", Unit.Gram, 1.1, ShelfLifeDays: 3);
-    private static readonly Ingredient Milk = new("milk", "Milk", Unit.Millilitre, 0.5, ShelfLifeDays: 5);
+    private static readonly Ingredient Rice = new("rice", "Rice", Unit.Gram, new Nutrition(350, 7, 0.6, 78, 1.3));
+    private static readonly Ingredient Pasta = new("pasta", "Pasta", Unit.Gram, new Nutrition(360, 12.5, 1.5, 72, 3));
+    private static readonly Ingredient Chicken = new("chicken", "Chicken", Unit.Gram, new Nutrition(110, 23, 1.5, 0, 0), ShelfLifeDays: 3);
+    private static readonly Ingredient Milk = new("milk", "Milk", Unit.Millilitre, new Nutrition(50, 3.4, 2, 4.8, 0), ShelfLifeDays: 5);
 
     private static readonly Recipe ChickenPilaf = new("pilaf", "Chicken pilaf", [MealType.Main],
         new Dictionary<string, int> { ["rice"] = 100, ["chicken"] = 150 });
