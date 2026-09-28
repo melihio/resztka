@@ -56,6 +56,8 @@ Will spoil before the next shop
 - **Reuses leftovers.** Opened packs get used up by other recipes.
 - **Shelf life.** Chicken is planned for the first days after the shop, not day 6.
 - **Waste-averse.** Leftovers that would spoil before the next shop count as money thrown away. Onions that keep for weeks don't.
+- **Drinks included.** Daily coffee, tea, juice or water (`--drinks coffee-milk=2,water=1`) are bought, paid for from the budget and counted in the nutrition.
+- **Shopping list in Polish and English.** Every product shows the shelf label and an English translation.
 - **Diets and dislikes.** Avoid whole food categories (`--avoid pork,sugar`) or follow a diet (`--diet vegetarian`). When nothing fits, it tells you why.
 - **Constraints.** Budget, meal slots per day, number of people, minimum kcal per day, max repeats per recipe, ingredients you already have, ingredients you don't eat.
 - **Deterministic and explainable.** No LLM. Plain data and an integer program: the same input always gives an optimal plan.
@@ -85,6 +87,7 @@ dotnet run --project src/Resztka.Cli -- --budget 100
 | `--min-kcal` | none | Hard minimum kcal per person per day |
 | `--max-repeats` | `3` | How often a single recipe may appear |
 | `--pantry` | none | What you already have, e.g. `rice=300,eggs=4` |
+| `--drinks` | none | Daily drinks per person, e.g. `coffee-milk=2,orange-juice=1` (see below) |
 | `-a`, `--avoid` | none | Food categories to avoid, e.g. `chicken,pork,beef,sugar` (see below) |
 | `--diet` | none | `vegetarian`, `vegan` or `pescatarian` |
 | `-x`, `--exclude` | none | Single ingredients to avoid, e.g. `minced-meat,kielbasa` |
@@ -92,6 +95,18 @@ dotnet run --project src/Resztka.Cli -- --budget 100
 | `--data` | bundled | Directory with a custom catalog |
 
 Exit codes: `0` plan found, `1` no plan is possible (the output says why), `2` invalid input.
+
+### Drinks
+
+Drinks aren't chosen by the planner. You say what you drink every day, and it
+buys enough for the whole plan, pays for it from the budget and adds it to each
+day's nutrition. A box of 100 tea bags lasts weeks, so the rest goes to the pantry.
+
+`tea`, `tea-sugar`, `coffee`, `coffee-milk`, `orange-juice`, `kefir`, `water` (1.5 l)
+
+```bash
+resztka --budget 120 --meals breakfast,main,main --drinks coffee-milk=2,orange-juice=1,water=1
+```
 
 ### Food categories
 

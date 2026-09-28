@@ -43,8 +43,10 @@ Thanks for helping! Most contributions are data, not code.
 Store files live in [`data/products/`](data/products). Each product maps a real pack to an ingredient:
 
 ```json
-{ "id": "bdr-rice-400", "name": "Ryż długoziarnisty 400 g", "ingredient": "rice", "packSize": 400, "price": 3.99 }
+{ "id": "bdr-rice-400", "name": "Ryż długoziarnisty 400 g", "nameEn": "Long-grain rice 400 g", "ingredient": "rice", "packSize": 400, "price": 3.99 }
 ```
+
+`name` is exactly what the shelf label says; `nameEn` is its English translation.
 
 For canned food, `packSize` is the **drained** weight you actually cook with.
 Please update `pricesAsOf` when you refresh prices.
