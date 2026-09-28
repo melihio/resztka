@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>resztka</AssemblyName>
+    <RootNamespace>Resztka.Cli</RootNamespace>
+    <Description>Plan a week of meals on a fixed budget, without wasting the leftovers.</Description>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>resztka</ToolCommandName>
+    <PackageId>Resztka</PackageId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Resztka.Core\Resztka.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" Version="2.0.12" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\data\**\*.json" LinkBase="data" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>
