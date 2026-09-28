@@ -125,6 +125,45 @@ resztka --budget 100 --avoid chicken,pork,beef,sugar
 resztka --budget 80 --diet vegan --days 5
 ```
 
+## HTTP API
+
+The same planner is available as a web API.
+
+```bash
+dotnet run --project src/Resztka.Api
+```
+
+Open http://localhost:5020/scalar for an interactive reference, or fetch the
+OpenAPI document from `/openapi/v1.json`.
+
+| Method | Path | Description |
+| --- | --- | --- |
+| `POST` | `/api/plans` | Plan meals and a shopping list |
+| `GET` | `/api/recipes?mealType=drink` | Recipes, optionally for one meal type |
+| `GET` | `/api/ingredients` | Ingredients with nutrition, shelf life and categories |
+| `GET` | `/api/products?ingredient=rice` | Packs that can be bought |
+| `GET` | `/api/categories` | Food categories that can be avoided |
+| `GET` | `/api/diets` | Supported diets and what they avoid |
+| `GET` | `/health` | Health check |
+
+```bash
+curl -X POST http://localhost:5020/api/plans   -H "Content-Type: application/json"   -d '{
+        "budget": 100,
+        "days": 7,
+        "meals": ["breakfast", "main", "main"],
+        "diet": "vegetarian",
+        "avoid": ["sugar"],
+        "drinks": { "coffee-milk": 2, "water": 1 },
+        "pantry": { "oil": 500 }
+      }'
+```
+
+Every field except `budget` is optional and defaults to the same values as the CLI.
+The response holds `status` (`optimal`, `feasible` or `infeasible`), a `reason`
+when no plan is possible, the `days` with their meals and nutrition, the daily
+`drinks`, a `nutrition` summary, the `shoppingList` with Polish and English
+names, and the `leftovers`. Invalid input returns a `400` problem response.
+
 ## How it works
 
 The week is modelled as an integer linear program and solved with
