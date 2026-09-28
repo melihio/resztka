@@ -17,6 +17,14 @@ internal static class ArgumentParsing
                     $"Unknown meal '{meal}'. Use one of: {string.Join(", ", Enum.GetNames<MealType>().Select(n => n.ToLowerInvariant()))}."))
             .ToList();
 
+    public static IReadOnlySet<FoodCategory> ParseCategories(string? value) =>
+        ParseList(value)
+            .Select(category => Enum.TryParse<FoodCategory>(category, ignoreCase: true, out var parsed)
+                ? parsed
+                : throw new FormatException(
+                    $"Unknown category '{category}'. Use one of: {string.Join(", ", Enum.GetNames<FoodCategory>().Select(n => n.ToLowerInvariant()))}."))
+            .ToHashSet();
+
     public static IReadOnlyDictionary<string, int> ParsePantry(string? value)
     {
         var pantry = new Dictionary<string, int>();

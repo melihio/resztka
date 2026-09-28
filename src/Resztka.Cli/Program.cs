@@ -76,6 +76,18 @@ var excludeOption = new Option<string?>("--exclude", "-x")
     Description = "Comma separated ingredients to avoid, e.g. minced-meat,kielbasa.",
 };
 
+var avoidOption = new Option<string?>("--avoid", "-a")
+{
+    Description = "Comma separated food categories to avoid: "
+        + string.Join(", ", Enum.GetNames<FoodCategory>().Select(n => n.ToLowerInvariant())) + ".",
+};
+
+var dietOption = new Option<string?>("--diet")
+{
+    Description = "vegetarian (no meat or fish), vegan (no animal products) or pescatarian (no meat).",
+};
+dietOption.AcceptOnlyFromAmong("vegetarian", "vegan", "pescatarian");
+
 var timeLimitOption = new Option<double>("--time-limit")
 {
     Description = "Maximum solver time in seconds.",
@@ -102,6 +114,8 @@ var root = new RootCommand("resztka — plan a week of meals on a fixed budget, 
     maxRepeatsOption,
     pantryOption,
     excludeOption,
+    avoidOption,
+    dietOption,
     timeLimitOption,
     dataOption,
 };
@@ -111,6 +125,10 @@ root.SetAction(parseResult =>
     try
     {
         var catalog = CatalogLoader.LoadFromDirectory(parseResult.GetValue(dataOption)!.FullName);
+
+        var avoided = ArgumentParsing.ParseCategories(parseResult.GetValue(avoidOption)).ToHashSet();
+        if (parseResult.GetValue(dietOption) is { } diet)
+            avoided.UnionWith(Diets.ExcludedCategories(Enum.Parse<Diet>(diet, ignoreCase: true)));
 
         var request = new PlanRequest
         {
@@ -127,6 +145,7 @@ root.SetAction(parseResult =>
             MaxRepeatsPerRecipe = parseResult.GetValue(maxRepeatsOption),
             Pantry = ArgumentParsing.ParsePantry(parseResult.GetValue(pantryOption)),
             ExcludedIngredients = ArgumentParsing.ParseList(parseResult.GetValue(excludeOption)).ToHashSet(),
+            ExcludedCategories = avoided,
             TimeLimit = TimeSpan.FromSeconds(parseResult.GetValue(timeLimitOption)),
         };
 

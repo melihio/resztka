@@ -15,12 +15,14 @@ internal static class PlanRenderer
         var people = request.People == 1 ? "1 person" : $"{request.People} people";
         var goal = request.Goal == PlanGoal.MaxNutrition ? "most nutrition" : "cheapest";
         output.WriteLine($"resztka · {request.Days} days · {people} · budget {Money(request.Budget)} · goal: {goal}");
+        if (request.ExcludedCategories.Count > 0)
+            output.WriteLine($"avoiding: {string.Join(", ", request.ExcludedCategories.Order().Select(c => c.ToString().ToLowerInvariant()))}");
         output.WriteLine();
 
         if (plan.Status == PlanStatus.Infeasible)
         {
             output.WriteLine("No plan fits this budget. Try a higher budget, fewer meals, more");
-            output.WriteLine("allowed repeats (--max-repeats) or a lower --min-kcal.");
+            output.WriteLine("allowed repeats (--max-repeats), a lower --min-kcal or fewer --avoid categories.");
             return;
         }
 
