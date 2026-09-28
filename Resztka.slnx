@@ -5,6 +5,7 @@
     <Project Path="src/Resztka.Core/Resztka.Core.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/Resztka.Api.Tests/Resztka.Api.Tests.csproj" />
     <Project Path="tests/Resztka.Core.Tests/Resztka.Core.Tests.csproj" />
   </Folder>
 </Solution>
