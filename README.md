@@ -56,6 +56,7 @@ Will spoil before the next shop
 - **Reuses leftovers.** Opened packs get used up by other recipes.
 - **Shelf life.** Chicken is planned for the first days after the shop, not day 6.
 - **Waste-averse.** Leftovers that would spoil before the next shop count as money thrown away. Onions that keep for weeks don't.
+- **Diets and dislikes.** Avoid whole food categories (`--avoid pork,sugar`) or follow a diet (`--diet vegetarian`). When nothing fits, it tells you why.
 - **Constraints.** Budget, meal slots per day, number of people, minimum kcal per day, max repeats per recipe, ingredients you already have, ingredients you don't eat.
 - **Deterministic and explainable.** No LLM. Plain data and an integer program: the same input always gives an optimal plan.
 
@@ -84,11 +85,30 @@ dotnet run --project src/Resztka.Cli -- --budget 100
 | `--min-kcal` | none | Hard minimum kcal per person per day |
 | `--max-repeats` | `3` | How often a single recipe may appear |
 | `--pantry` | none | What you already have, e.g. `rice=300,eggs=4` |
-| `-x`, `--exclude` | none | Ingredients to avoid, e.g. `minced-meat,kielbasa` |
+| `-a`, `--avoid` | none | Food categories to avoid, e.g. `chicken,pork,beef,sugar` (see below) |
+| `--diet` | none | `vegetarian`, `vegan` or `pescatarian` |
+| `-x`, `--exclude` | none | Single ingredients to avoid, e.g. `minced-meat,kielbasa` |
 | `--time-limit` | `10` | Maximum solver time in seconds |
 | `--data` | bundled | Directory with a custom catalog |
 
-Exit codes: `0` plan found, `1` no plan fits the budget, `2` invalid input.
+Exit codes: `0` plan found, `1` no plan is possible (the output says why), `2` invalid input.
+
+### Food categories
+
+`chicken`, `pork`, `beef`, `fish`, `eggs`, `dairy`, `gluten`, `sugar`, `legumes`,
+`vegetables`, `fruit`. An ingredient can belong to several (minced pork & beef is
+both `pork` and `beef`), and a recipe is skipped if any of its ingredients is avoided.
+
+| Diet | Avoids |
+| --- | --- |
+| `vegetarian` | chicken, pork, beef, fish |
+| `vegan` | chicken, pork, beef, fish, eggs, dairy |
+| `pescatarian` | chicken, pork, beef |
+
+```bash
+resztka --budget 100 --avoid chicken,pork,beef,sugar
+resztka --budget 80 --diet vegan --days 5
+```
 
 ## How it works
 
@@ -128,7 +148,7 @@ the cost, so recipes that use it become the cheapest way to fill the remaining s
 
 The catalog is plain JSON in [`data/`](data):
 
-- [`ingredients.json`](data/ingredients.json): generic ingredients with unit, nutrition (kcal, protein, fat, carbs, fibre per 100 g/ml or per piece) and shelf life
+- [`ingredients.json`](data/ingredients.json): generic ingredients with unit, nutrition (kcal, protein, fat, carbs, fibre per 100 g/ml or per piece), shelf life and food categories
 - [`recipes.json`](data/recipes.json): single-serving recipes that use ingredients
 - [`products/biedronka.json`](data/products/biedronka.json): packs you can buy, with size and price
 

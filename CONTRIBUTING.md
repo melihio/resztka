@@ -20,8 +20,9 @@ Thanks for helping! Most contributions are data, not code.
    - `mealTypes` is `breakfast`, `main` or both.
 
 2. If the recipe needs a new ingredient, add it to [`data/ingredients.json`](data/ingredients.json)
-   with its unit, `nutrition` and `shelfLifeDays` (leave it out for dry or frozen goods),
-   and add at least one product for it in a store file.
+   with its unit, `nutrition`, `categories` (e.g. `["pork", "beef"]`, so diet filters work)
+   and `shelfLifeDays` (leave it out for dry or frozen goods), and add at least one
+   product for it in a store file.
 
    Copy `nutrition` straight from a Polish/EU label: values per 100 g or 100 ml (per piece
    for `piece` ingredients), with carbs *excluding* fibre:
