@@ -25,18 +25,24 @@ internal static class ArgumentParsing
                     $"Unknown category '{category}'. Use one of: {string.Join(", ", Enum.GetNames<FoodCategory>().Select(n => n.ToLowerInvariant()))}."))
             .ToHashSet();
 
-    public static IReadOnlyDictionary<string, int> ParsePantry(string? value)
+    public static IReadOnlyDictionary<string, int> ParsePantry(string? value) =>
+        ParseAmounts(value, "pantry entry", "ingredient=amount, e.g. rice=300");
+
+    public static IReadOnlyDictionary<string, int> ParseDrinks(string? value) =>
+        ParseAmounts(value, "drink", "drink=servings per day, e.g. coffee=2");
+
+    private static Dictionary<string, int> ParseAmounts(string? value, string what, string expected)
     {
-        var pantry = new Dictionary<string, int>();
+        var amounts = new Dictionary<string, int>();
         foreach (var entry in ParseList(value))
         {
             var parts = entry.Split('=', StringSplitOptions.TrimEntries);
             if (parts.Length != 2 || !int.TryParse(parts[1], out var amount) || amount <= 0)
-                throw new FormatException($"Invalid pantry entry '{entry}'. Expected ingredient=amount, e.g. rice=300.");
+                throw new FormatException($"Invalid {what} '{entry}'. Expected {expected}.");
 
-            pantry[parts[0]] = pantry.GetValueOrDefault(parts[0]) + amount;
+            amounts[parts[0]] = amounts.GetValueOrDefault(parts[0]) + amount;
         }
 
-        return pantry;
+        return amounts;
     }
 }

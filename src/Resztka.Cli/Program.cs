@@ -66,6 +66,12 @@ var maxRepeatsOption = new Option<int>("--max-repeats")
     DefaultValueFactory = _ => 3,
 };
 
+var drinksOption = new Option<string?>("--drinks")
+{
+    Description = "Drinks each person has every day, e.g. coffee-milk=2,orange-juice=1. "
+        + "Choose from: tea, tea-sugar, coffee, coffee-milk, orange-juice, kefir, water.",
+};
+
 var pantryOption = new Option<string?>("--pantry")
 {
     Description = "Ingredients already at home, e.g. rice=300,eggs=4.",
@@ -112,6 +118,7 @@ var root = new RootCommand("resztka — plan a week of meals on a fixed budget, 
     fiberOption,
     minKcalOption,
     maxRepeatsOption,
+    drinksOption,
     pantryOption,
     excludeOption,
     avoidOption,
@@ -143,6 +150,7 @@ root.SetAction(parseResult =>
                 parseResult.GetValue(fiberOption)),
             MinKcalPerDay = parseResult.GetValue(minKcalOption),
             MaxRepeatsPerRecipe = parseResult.GetValue(maxRepeatsOption),
+            DailyDrinks = ArgumentParsing.ParseDrinks(parseResult.GetValue(drinksOption)),
             Pantry = ArgumentParsing.ParsePantry(parseResult.GetValue(pantryOption)),
             ExcludedIngredients = ArgumentParsing.ParseList(parseResult.GetValue(excludeOption)).ToHashSet(),
             ExcludedCategories = avoided,

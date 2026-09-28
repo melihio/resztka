@@ -29,9 +29,18 @@ internal static class PlanRenderer
             return;
         }
 
+        var drinks = DrinksPerDay(catalog, plan);
+        if (plan.Drinks.Count > 0)
+        {
+            output.WriteLine(Row(
+                "Every day: " + string.Join(", ", plan.Drinks.Select(d => $"{d.Servings} × {d.Recipe.Name.ToLowerInvariant()}")),
+                $"{drinks.Kcal:F0} kcal · {drinks.Protein:F0} g protein"));
+            output.WriteLine();
+        }
+
         foreach (var day in plan.Meals.GroupBy(m => m.Day))
         {
-            var total = day.Aggregate(default(Nutrition), (sum, m) => sum + catalog.NutritionPerServing(m.Recipe));
+            var total = day.Aggregate(drinks, (sum, m) => sum + catalog.NutritionPerServing(m.Recipe));
             output.WriteLine(Row($"Day {day.Key + 1}", Summary(total)));
             foreach (var meal in day)
             {
@@ -83,7 +92,7 @@ internal static class PlanRenderer
     private static void WriteNutrition(TextWriter output, FoodCatalog catalog, PlanRequest request, MealPlan plan)
     {
         var days = plan.Meals.GroupBy(m => m.Day)
-            .Select(d => d.Aggregate(default(Nutrition), (sum, m) => sum + catalog.NutritionPerServing(m.Recipe)))
+            .Select(d => d.Aggregate(DrinksPerDay(catalog, plan), (sum, m) => sum + catalog.NutritionPerServing(m.Recipe)))
             .ToList();
         var average = days.Aggregate(default(Nutrition), (sum, d) => sum + d) / days.Count;
         var targets = request.Targets.All().ToDictionary(t => t.Nutrient, t => t.Target);
@@ -102,6 +111,9 @@ internal static class PlanRenderer
             output.WriteLine(line);
         }
     }
+
+    private static Nutrition DrinksPerDay(FoodCatalog catalog, MealPlan plan) =>
+        plan.Drinks.Aggregate(default(Nutrition), (sum, d) => sum + catalog.NutritionPerServing(d.Recipe) * d.Servings);
 
     private static string Summary(Nutrition n) =>
         $"{n.Kcal:F0} kcal · {n.Protein:F0} g protein · {n.Fiber:F0} g fibre";
